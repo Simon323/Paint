@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Paint", "Paint\Paint.csproj", "{E503177C-E2F3-4ADF-B778-86DABB67C182}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interface", "Interface\Interface.csproj", "{72490841-892A-4916-86D5-6C47F42F07C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PluginOne", "PluginOne\PluginOne.csproj", "{50D84908-8466-44F0-A576-4590725025AE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E503177C-E2F3-4ADF-B778-86DABB67C182}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E503177C-E2F3-4ADF-B778-86DABB67C182}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E503177C-E2F3-4ADF-B778-86DABB67C182}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E503177C-E2F3-4ADF-B778-86DABB67C182}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72490841-892A-4916-86D5-6C47F42F07C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72490841-892A-4916-86D5-6C47F42F07C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72490841-892A-4916-86D5-6C47F42F07C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72490841-892A-4916-86D5-6C47F42F07C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50D84908-8466-44F0-A576-4590725025AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50D84908-8466-44F0-A576-4590725025AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50D84908-8466-44F0-A576-4590725025AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50D84908-8466-44F0-A576-4590725025AE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
