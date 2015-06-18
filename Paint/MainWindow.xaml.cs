@@ -144,5 +144,19 @@ namespace Paint
 
         #endregion
 
+        #region Helper
+
+        public void EnableButtons()
+        {
+            SavePicture.IsEnabled = true;
+        }
+
+        #endregion
+
+        private void ClosePaint_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
     }
 }
