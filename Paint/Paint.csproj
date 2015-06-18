@@ -99,6 +99,18 @@
       <Name>Interface</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\circleBig.bmp" />
+    <Resource Include="Resources\circleMedium.bmp" />
+    <Resource Include="Resources\circleSmall.bmp" />
+    <Resource Include="Resources\exit.gif" />
+    <Resource Include="Resources\new.gif" />
+    <Resource Include="Resources\open.gif" />
+    <Resource Include="Resources\rectangleBig.bmp" />
+    <Resource Include="Resources\rectangleMedium.bmp" />
+    <Resource Include="Resources\rectangleSmall.bmp" />
+    <Resource Include="Resources\save.gif" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

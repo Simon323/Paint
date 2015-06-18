@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -119,11 +121,11 @@ namespace Paint
             // Set properties.
             myButton.Content = "Click Me!";
             myButton.VerticalAlignment = System.Windows.VerticalAlignment.Bottom;
-            myButton.Margin = new Thickness(-125, 153, 0, 0);
+            //myButton.Margin = new Thickness(-125, 153, 0, 0);
             myButton.Width = 20;
 
             // Add created button to a previously created container.
-            //BrushPanel.Children.Add(myButton);
+            BrushPanel.Children.Add(myButton);
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -151,12 +153,75 @@ namespace Paint
             SavePicture.IsEnabled = true;
         }
 
-        #endregion
+        public void PictureNew()
+        {
 
-        private void ClosePaint_Click(object sender, RoutedEventArgs e)
+        }
+
+        public void PictureOpen()
+        {
+            //EnableButtons();
+            //string currentDirectory = Directory.GetCurrentDirectory();
+            //try
+            //{
+            //    OpenFileDialog ofd = new OpenFileDialog();
+            //    ofd.RestoreDirectory = true;
+            //    if (ofd.ShowDialog() == DialogResult.OK)
+            //    {
+            //        NewImage((Bitmap)Bitmap.FromFile(ofd.FileName));
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    MessageBox.Show("An error has ocurred when loading image.Please try with 24bpp images if you can't see it.", "Atention", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            //}
+        }
+
+        public void PictureSave()
+        {
+
+        }
+
+        public void Exit()
         {
             this.Close();
         }
+
+        //private void NewImage(Bitmap bmp)
+        //{
+        //    iniImg = bmp;
+        //    changedImg = (Bitmap)iniImg.Clone();
+        //    picImg.Image = changedImg;
+        //    graphics = Graphics.FromImage(changedImg);
+        //}
+
+        #endregion
+
+        #region Main Menu
+
+        private void NewPicture_Click(object sender, RoutedEventArgs e)
+        {
+            PictureNew();
+        }
+
+        private void OpenPicture_Click(object sender, RoutedEventArgs e)
+        {
+            PictureOpen();
+        }
+
+        private void SavePicture_Click(object sender, RoutedEventArgs e)
+        {
+            PictureSave();
+        }
+
+        private void ClosePaint_Click(object sender, RoutedEventArgs e)
+        {
+            Exit();
+        }
+
+        #endregion
+
+        
 
     }
 }

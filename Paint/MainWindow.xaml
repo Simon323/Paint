@@ -3,19 +3,30 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MainWindow" Height="600" Width="800" Name="MainForm">
     <Grid>
-        <StackPanel Name="BrushPanel" HorizontalAlignment="Left" Height="445" VerticalAlignment="Top" Width="63" Margin="10,48,0,0" Background="LemonChiffon">
+        <StackPanel Name="BrushPanel" HorizontalAlignment="Left" Height="431" VerticalAlignment="Top" Width="63" Margin="10,62,0,0" Background="LemonChiffon">
+            <Image Height="20" Width="20"/>
+            <Image Height="20" Width="20"/>
+            <Image Height="20" Width="20"/>
+            <Image Height="20" Width="20"/>
+            <Image Height="20" Width="20"/>
+            <Image Height="20" Width="20"/>
         </StackPanel>
         <Button Content="Button" HorizontalAlignment="Left" Margin="10,539,0,0" VerticalAlignment="Top" Width="57" Click="Button_Click"/>
-        <Image Name="ImageContainer" HorizontalAlignment="Left" Height="445" Margin="78,48,0,0" VerticalAlignment="Top" Width="704"/>
-        <StackPanel Name="ColorPanel" HorizontalAlignment="Left" Height="61" Margin="78,498,0,0" VerticalAlignment="Top" Width="698" Background="LemonChiffon"/>
+        <Image Name="ImageContainer" HorizontalAlignment="Left" Height="431" Margin="78,62,0,0" VerticalAlignment="Top" Width="704"/>
+        <StackPanel Name="ColorPanel" HorizontalAlignment="Left" Height="61" Margin="78,498,0,0" VerticalAlignment="Top" Width="704" Background="LemonChiffon"/>
         <Menu Name="MainMenu" HorizontalAlignment="Left" Height="28" VerticalAlignment="Top" Width="792">
             <MenuItem Header="File" Height="28" Width="39">
-                <MenuItem Name="NewPicture" Header="New"></MenuItem>
-                <MenuItem Name="OpenPicture" Header="Open"></MenuItem>
-                <MenuItem Name="SavePicture" Header="Save" IsEnabled="False"></MenuItem>
+                <MenuItem Name="NewPicture" Header="New" Click="NewPicture_Click"></MenuItem>
+                <MenuItem Name="OpenPicture" Header="Open" Click="OpenPicture_Click"></MenuItem>
+                <MenuItem Name="SavePicture" Header="Save" IsEnabled="False" Click="SavePicture_Click"></MenuItem>
                 <MenuItem Name="ClosePaint" Header="Exit" Click="ClosePaint_Click"></MenuItem>
             </MenuItem>
         </Menu>
+        <ToolBar HorizontalAlignment="Left" Margin="3,31,0,0" VerticalAlignment="Top" Width="789" Height="26">
+            <Button Command="Cut" Content="Cut" />
+            <Button Command="Copy" Content="Copy" />
+            <Button Command="Paste" Content="Paste" />
+        </ToolBar>
 
 
     </Grid>
