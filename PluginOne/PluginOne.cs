@@ -8,5 +8,9 @@ namespace PluginOne
 {
     public class PluginOne : Interface.IPluginOne
     {
+        public string GetString()
+        {
+            return "Hello world";
+        }
     }
 }

@@ -8,5 +8,6 @@ namespace Interface
 {
     public interface IPluginOne
     {
+        string GetString();
     }
 }
