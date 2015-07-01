@@ -8,7 +8,7 @@ using System.Windows.Media;
 
 namespace Interface
 {
-    public interface IPluginTwo
+    public interface IPlugin : IDisposable
     {
         string GetString();
 

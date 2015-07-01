@@ -1,7 +1,7 @@
-﻿using Microsoft.Win32;
+﻿using Interface;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -13,6 +13,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 
@@ -47,23 +48,23 @@ namespace Paint
     public partial class MainWindow : Window
     {
         #region Variables
-        Bitmap iniImg, changedImg;
-        //PictureBox picBoxClicked;
-        WidthRectanglePointer widthRectanglePointer;
-        WidthCirclePointer widthCirclePointer;
-        TypePointer typePointer;
-        Pen pen;
-        Graphics graphics;
-        Rectangle rect;
-        Color colorFront, colorBack;
+        private Color _color = Colors.Black;
+        private int _thikness = 3;
+        private Dictionary<string, IPlugin> Plugins = new Dictionary<string, IPlugin>();
+        private IPlugin _currentActivePlugin = null;
+
+        private List<UIElement> Redos = new List<UIElement>();
+
+        private string _filePath = string.Empty;
+        public MenuItem pluginsMenuItem;
         #endregion
         public MainWindow()
         {
             InitializeComponent();
+            pluginsMenuItem = new MenuItem(){ Header = "Plugins",};
             AddPluginOne();
             AddPluginTwo();
-            AppendButton();
-            LoadSettings();
+            AppendPluginsToForm();
         }
 
         #region Loading Plugins
@@ -76,7 +77,7 @@ namespace Paint
 
             foreach (var t in types)
             {
-                if (t.IsClass && t.IsPublic && t.GetInterface("IPluginOne") != null)
+                if (t.IsClass && t.IsPublic && t.GetInterface("IPlugin") != null)
                 {
                     theType = t;
                 }
@@ -84,7 +85,16 @@ namespace Paint
 
             if (theType != null)
             {
-                var plugin = Activator.CreateInstance(theType) as Interface.IPluginOne;
+                var pluginOne = Activator.CreateInstance(theType) as Interface.IPlugin;
+
+                var menuItem = pluginOne.GetMenuItem();
+                menuItem.Tag = pluginOne.GetID();
+                menuItem.Click += pluginMenuItem_Click;
+                pluginsMenuItem.Items.Add(menuItem);
+                Plugins.Add(pluginOne.GetID(), pluginOne);
+
+                //MainMenu.Items.Add(pluginsMenuItem);
+
                 //this.menuStrip1.Items.Add(plugin.GetItem());
             }
         }
@@ -97,7 +107,7 @@ namespace Paint
 
             foreach (var t in types)
             {
-                if (t.IsClass && t.IsPublic && t.GetInterface("IPluginTwo") != null)
+                if (t.IsClass && t.IsPublic && t.GetInterface("IPlugin") != null)
                 {
                     theType = t;
                 }
@@ -105,57 +115,51 @@ namespace Paint
 
             if (theType != null)
             {
-                var plugin = Activator.CreateInstance(theType) as Interface.IPluginTwo;
+                var pluginTwo = Activator.CreateInstance(theType) as Interface.IPlugin;
+
+                var menuItem = pluginTwo.GetMenuItem();
+                menuItem.Tag = pluginTwo.GetID();
+                menuItem.Click += pluginMenuItem_Click;
+                pluginsMenuItem.Items.Add(menuItem);
+                Plugins.Add(pluginTwo.GetID(), pluginTwo);
                 //this.menuStrip1.Items.Add(plugin.GetItem());
             }
         }
 
-        public Type LoadPluginOne()
+        private void pluginMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            var assembly = Assembly.LoadFrom(@"C:\Users\Szymon\Documents\Visual Studio 2013\Projects\Paint\PluginOne\bin\Debug\PluginOne.dll");
+            MenuItem menuItem = sender as MenuItem;
 
-            Type[] types = assembly.GetTypes();
-            Type theType = null;
-
-            foreach (var t in types)
+            if (sender != null)
             {
-                if (t.IsClass && t.IsPublic && t.GetInterface("IPluginOne") != null)
+                string pluginID = menuItem.Tag as string;
+                if (!string.IsNullOrEmpty(pluginID))
                 {
-                    theType = t;
+                    if (_currentActivePlugin != null)
+                    {
+                        _currentActivePlugin.Dispose();
+                    }
+
+                    _currentActivePlugin = Plugins[pluginID];
+                    _currentActivePlugin.Initialize(MainCanvas, _color, _thikness);
+                    _currentActivePlugin.Finished += _currentActivePlugin_Finished;
                 }
             }
-
-            return theType;
         }
 
-        public Type LoadPluginTwo()
+        private void _currentActivePlugin_Finished(object sender, EventArgs e)
         {
-            var assembly = Assembly.LoadFrom(@"C:\Users\Szymon\Documents\Visual Studio 2013\Projects\Paint\PluginTwo\bin\Debug\PluginTwo.dll");
 
-            Type[] types = assembly.GetTypes();
-            Type theType = null;
-
-            foreach (var t in types)
-            {
-                if (t.IsClass && t.IsPublic && t.GetInterface("IPluginTwo") != null)
-                {
-                    theType = t;
-                }
-            }
-
-            return theType;
         }
+        
 
         #endregion
 
         #region Start settings
 
-        public void LoadSettings()
+        public void AppendPluginsToForm()
         {
-            widthRectanglePointer = WidthRectanglePointer.Small;
-            typePointer = TypePointer.Rectangle;
-            colorFront = Color.Black;
-            colorBack = Color.White;
+            MainMenu.Items.Add(pluginsMenuItem);
         }
 
         #endregion
@@ -178,16 +182,16 @@ namespace Paint
         private void Button_Click(object sender, RoutedEventArgs e)
         {
 
-            Type theType = LoadPluginTwo();
+            //Type theType = LoadPluginTwo();
 
-            if (theType != null)
-            {
-                var plugin = Activator.CreateInstance(theType) as Interface.IPluginTwo;
+            //if (theType != null)
+            //{
+            //    var plugin = Activator.CreateInstance(theType) as Interface.IPluginTwo;
 
-                MessageBox.Show("txt: " + plugin.GetString());
-            }
-            else
-                MessageBox.Show("błąd ładowania wtyczki");
+            //    MessageBox.Show("txt: " + plugin.GetString());
+            //}
+            //else
+            //    MessageBox.Show("błąd ładowania wtyczki");
 
         }
 
@@ -200,59 +204,63 @@ namespace Paint
             SavePicture.IsEnabled = true;
         }
 
+        public void ExportToPng(string path, Canvas surface)
+        {
+            if (path == null) return;
+
+            Size size = new Size(surface.ActualWidth, surface.ActualHeight);
+
+            RenderTargetBitmap renderBitmap =
+              new RenderTargetBitmap(
+                (int)size.Width,
+                (int)size.Height,
+                96d,
+                96d,
+                PixelFormats.Pbgra32);
+            renderBitmap.Render(surface);
+
+            using (FileStream outStream = new FileStream(path, FileMode.Create))
+            {
+                PngBitmapEncoder encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(renderBitmap));
+                encoder.Save(outStream);
+                outStream.Close();
+            }
+        }
+
         public void PictureNew()
         {
-            EnableButtons();
-            Bitmap bmp = new Bitmap(Convert.ToInt32(ImageContainer.Width), Convert.ToInt32(ImageContainer.Height));
-            graphics = Graphics.FromImage(bmp);
-            //graphics.FillRectangle(new SolidBrush(Color.White), 0, 0, Convert.ToInt32(ImageContainer.Width), Convert.ToInt32(ImageContainer.Height));
-            NewImage(bmp, null);
+            MainCanvas.Children.Clear();
         }
 
         public void PictureOpen()
         {
-            EnableButtons();
-            string currentDirectory = Directory.GetCurrentDirectory();
-            try
+            OpenFileDialog ofd = new OpenFileDialog();
+            var result = ofd.ShowDialog();
+            if (result == true)
             {
-                OpenFileDialog ofd = new OpenFileDialog();
-                ofd.Filter = "Windows Bitmap (*.BMP)|*.bmp|Joint Photographic Experts Group (*.JPG;*.JIF;*.JPEG)|*.jpg;*.jif;*.jpeg|Portable Network Graphics(*.PNG)|*.pgn";
-                ofd.RestoreDirectory = true;
-                ofd.ShowDialog();
-                //if (ofd.ShowDialog().ToString().Equals("OK"))
-                //{
-                    NewImage((Bitmap)Bitmap.FromFile(ofd.FileName), ofd.FileName);
-                //}
-            }
-            catch (Exception ex)
-            {
-               // MessageBox.Show("An error has ocurred when loading image.Please try with 24bpp images if you can't see it.", "Atention", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                BitmapImage image = new BitmapImage();
+                image.BeginInit();
+                image.UriSource = new Uri(ofd.FileName);
+                image.EndInit();
+                //v_Imege.Source = image.Clone();
             }
         }
 
         public void PictureSave()
         {
-            SaveFileDialog sfd = new SaveFileDialog();
-            sfd.Filter = "Windows Bitmap (*.BMP)|*.bmp|Joint Photographic Experts Group (*.JPG;*.JIF;*.JPEG)|*.jpg;*.jif;*.jpeg|Portable Network Graphics(*.PNG)|*.pgn";
-            sfd.RestoreDirectory = true;
-            if (sfd.ShowDialog().ToString().Equals("OK"))
+            if (string.IsNullOrEmpty(_filePath))
             {
-                switch (sfd.FilterIndex)
+                SaveFileDialog sfd = new SaveFileDialog();
+                var result = sfd.ShowDialog();
+                if (result == true)
                 {
-                    case 1:
-                        changedImg.Save(sfd.FileName, ImageFormat.Bmp);
-                        break;
-
-                    case 2:
-                        changedImg.Save(sfd.FileName, ImageFormat.Jpeg);
-                        break;
-
-                    case 3:
-                        changedImg.Save(sfd.FileName, ImageFormat.Png);
-                        break;
+                    _filePath = sfd.FileName;
                 }
             }
-            
+
+            ExportToPng(_filePath, MainCanvas);
+            MainCanvas.Children.Clear();
         }
 
         public void Exit()
@@ -260,22 +268,37 @@ namespace Paint
             this.Close();
         }
 
-        private void NewImage(Bitmap bmp, string path)
+        private void NewImage()
         {
-            iniImg = bmp;
-            changedImg = (Bitmap)iniImg.Clone();
-            if (path == null)
-            {
-                
-            }
-            else
-            {
-
-                ImageContainer.Source = new BitmapImage(new Uri(path));
-            }
-            graphics = Graphics.FromImage(changedImg);
-           // picImg.Image = changedImg;
+           
             
+        }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                if (e.Key == Key.S)
+                {
+                    PictureSave();
+                }
+                else if (e.Key == Key.Z)
+                {
+                    if (MainCanvas.Children.Count > 0)
+                    {
+                        Redos.Add(MainCanvas.Children[MainCanvas.Children.Count - 1]);
+                        MainCanvas.Children.RemoveAt(MainCanvas.Children.Count - 1);
+                    }
+                }
+                else if (e.Key == Key.Y)
+                {
+                    if (Redos.Any())
+                    {
+                        MainCanvas.Children.Add(Redos.Last());
+                        Redos.Remove(Redos.Last());
+                    }
+                }
+            }
         }
 
         #endregion
@@ -305,63 +328,47 @@ namespace Paint
         #endregion
 
         #region Image Form
-        private void ImageContainer_MouseDown(object sender, MouseEventArgs e)
+
+        
+        #endregion
+
+        #region XCTK Controls
+
+        private void ColorPicker_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color> e)
         {
-            //MessageBox.Show("cos");
-            PaintOrErase(e);
-        }
-
-        private void PaintOrErase(MouseEventArgs e)
-        {
-
-            if (e.LeftButton == MouseButtonState.Pressed)
+            if (ColorPicker.SelectedColor != null)
             {
-                DrawFigure(colorFront, e);
-            }
-
-            if (e.RightButton == MouseButtonState.Pressed)
-            {
-                DrawFigure(colorFront, e);
-            }
-            //if (e.Button == MouseButtons.Left)
-            //{
-            //    ShowStatus("Painting...", imageList1.Images[0]);
-            //    DrawFigure(colorFront, e);
-            //    picImg.Refresh();
-            //}
-            //else
-            //    if (e.Button == MouseButtons.Right)
-            //    {
-            //        ShowStatus("Erasing...", imageList1.Images[1]);
-            //        DrawFigure(colorBack, e);
-            //        picImg.Refresh();
-            //    }
-        }
-
-        private void DrawFigure(Color color, MouseEventArgs e)
-        {
-            //var p = e.GetPosition(null);
-            //var q = e.GetPosition(ImageContainer);
-            //MousePosText = string.Format("GetPosition(null): X = {0}, Y = {1}", p.X, p.Y);
-            
-            pen = new Pen(color, 1);
-            var positions = e.GetPosition(ImageContainer);
-            switch (typePointer)
-            {
-                case TypePointer.Rectangle:
-                    
-                    rect = new Rectangle(Convert.ToInt32(positions.X), Convert.ToInt32(positions.Y), (int)widthRectanglePointer, (int)widthRectanglePointer);
-                    graphics.DrawRectangle(pen, rect);
-                    graphics.FillRectangle(new SolidBrush(color), rect);
-                    break;
-                case TypePointer.Circle:
-
-                    rect = new Rectangle(Convert.ToInt32(positions.X), Convert.ToInt32(positions.Y), (int)widthCirclePointer, (int)widthCirclePointer);
-                    graphics.DrawEllipse(pen, rect);
-                    graphics.FillEllipse(new SolidBrush(color), rect);
-                    break;
+                _color = ColorPicker.SelectedColor;
+                UpdateColors();
             }
         }
+
+        private void UpdateColors()
+        {
+            if (_currentActivePlugin != null)
+            {
+                _currentActivePlugin.UpdateParameters(_color, _thikness);
+            }
+        }
+
+        private void IntegerUpDown_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            if (IntegerUpDown.Value.HasValue
+                && _thikness != IntegerUpDown.Value.Value)
+            {
+                _thikness = IntegerUpDown.Value.Value;
+                UpdateThikness();
+            }
+        }
+
+        private void UpdateThikness()
+        {
+            if (_currentActivePlugin != null)
+            {
+                _currentActivePlugin.UpdateParameters(_color, _thikness);
+            }
+        }
+
         #endregion
 
     }
